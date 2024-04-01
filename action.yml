@@ -1,0 +1,29 @@
+name: 'Collect Test Data'
+description: 'Collect test data and send it off to be processed.'
+inputs:
+  path:
+    description: 'The path to the JUnit XML file to be processed.'
+    required: true
+  gcs_bucket:
+    description: 'The GCS bucket to store the test data in.'
+    required: true
+  gcp_project_id:
+    description: 'The GCP project ID to use for authentication.'
+    required: true
+  workload_identity_provider:
+    description: 'The workload identity provider to use for authentication.'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - id: auth
+      uses: google-github-actions/auth@55bd3a7c6e2ae7cf1877fd1ccb9d54c0503c457c # v2.1.2
+      with:
+        project_id: ${{ inputs.gcp_project_id }}
+        workload_identity_provider: ${{ inputs.workload_identity_provider }}
+
+    - id: upload
+      uses: google-github-actions/upload-cloud-storage@22121cd842b0d185e042e28d969925b538c33d77 # v2.1.0
+      with:
+        source: ${{ inputs.path }}
+        destination: ${{ inputs.gcs_bucket }}

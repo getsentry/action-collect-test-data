@@ -13,6 +13,9 @@ inputs:
   workload_identity_provider:
     description: 'The workload identity provider to use for authentication.'
     required: true
+  service_account:
+    description: 'The service account to use for authentication.'
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -21,6 +24,7 @@ runs:
       with:
         project_id: ${{ inputs.gcp_project_id }}
         workload_identity_provider: ${{ inputs.workload_identity_provider }}
+        service_account: ${{ inputs.service_account }}
 
     - id: upload
       uses: google-github-actions/upload-cloud-storage@22121cd842b0d185e042e28d969925b538c33d77 # v2.1.0

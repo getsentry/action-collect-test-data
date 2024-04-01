@@ -26,3 +26,4 @@ jobs:
           gcs_bucket: ${{ secrets.GCS_BUCKET }}
           gcp_project_id: ${{ secrets.PROJECT_ID }}
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}

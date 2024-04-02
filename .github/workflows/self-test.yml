@@ -29,4 +29,15 @@ jobs:
           service_account_email: ${{ secrets.SUDO_GCP_SERVICE_ACCOUNT }}
 
       - name: Check Output
-        run: echo "${{ steps.test-action.outputs.uploaded }}"
+        run: |
+          # Check that both files were uploaded (using the output from the action)
+          files="${{ steps.test-action.outputs.files }}"
+          if [[ $files != *'junit.xml'* ]]; then
+            echo "junit.xml not uploaded"
+            exit 1
+          fi
+          if [[ $files != *'metadata.json'* ]]; then
+            echo "metadata.json not uploaded"
+            exit 1
+          fi
+          echo "Files uploaded successfully"

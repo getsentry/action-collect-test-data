@@ -2,10 +2,10 @@ name: 'Collect Test Data'
 description: 'Collect test data and metadata and upload them to GCS.'
 inputs:
   path:
-    description: 'The path to the JUnit XML file to be processed.'
+    description: 'The path to the test output (such as a JUnit XML file).'
     required: true
   gcs_path:
-    description: 'The GCS bucket and optional prefix to upload the JUnit XML and metadata files to.'
+    description: 'The GCS bucket and optional prefix to upload the test data and metadata to.'
     required: true
   gcp_project_id:
     description: 'The GCP project ID to use for authentication.'

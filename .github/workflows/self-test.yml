@@ -23,7 +23,7 @@ jobs:
         uses: ./
         with:
           path: .artifacts/junit.xml
-          gcs_bucket: ${{ secrets.GCS_BUCKET }}
-          gcp_project_id: ${{ secrets.PROJECT_ID }}
-          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          gcs_path: ${{ secrets.GCS_BUCKET }}
+          gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ secrets.SENTRY_GCP_DEV_WORKLOAD_IDENTITY_POOL }}
+          service_account: ${{ secrets.SUDO_GCP_SERVICE_ACCOUNT }}

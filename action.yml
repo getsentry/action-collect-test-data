@@ -23,15 +23,32 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - id: auth
+    - name: Create directory
+      id: create-directory
+      shell: bash
+      run: mkdir -p test_data
+
+    - name: Copy files
+      id: copy-files
+      shell: bash
+      run: cp -r ${{ inputs.path }} test_data
+
+    - name: Collect metadata
+      id: collect-metadata
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      run: echo "${{ toJson(github) }}" > test_data/metadata.json
+
+    - name: Authenticate
+      id: auth
       uses: google-github-actions/auth@55bd3a7c6e2ae7cf1877fd1ccb9d54c0503c457c # v2.1.2
       with:
         project_id: ${{ inputs.gcp_project_id }}
         workload_identity_provider: ${{ inputs.workload_identity_provider }}
         service_account: ${{ inputs.service_account_email }}
 
-    - id: upload
+    - name: Upload 
+      id: upload
       uses: google-github-actions/upload-cloud-storage@22121cd842b0d185e042e28d969925b538c33d77 # v2.1.0
       with:
-        path: ${{ inputs.path }}
+        path: test_data
         destination: ${{ inputs.gcs_path }}

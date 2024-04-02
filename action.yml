@@ -36,7 +36,10 @@ runs:
     - name: Collect metadata
       id: collect-metadata
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-      run: echo "${{ toJson(github) }}" > test_data/metadata.json
+      with:
+        script: |
+          const fs = require('fs');
+          fs.writeFileSync('test_data/metadata.json', JSON.stringify(github, null, 2));
 
     - name: Authenticate
       id: auth

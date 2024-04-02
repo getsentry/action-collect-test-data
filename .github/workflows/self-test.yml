@@ -31,7 +31,7 @@ jobs:
       - name: Check Output
         run: |
           # Check that both files were uploaded (using the output from the action)
-          files="${{ steps.test-action.outputs.files }}"
+          files="${{ steps.test-action.outputs.uploaded }}"
           if [[ $files != *'junit.xml'* ]]; then
             echo "junit.xml not uploaded"
             exit 1

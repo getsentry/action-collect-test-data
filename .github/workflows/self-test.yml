@@ -25,5 +25,5 @@ jobs:
           path: .artifacts/junit.xml
           gcs_path: ${{ secrets.GCS_BUCKET }}
           gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
-          workload_identity_provider: ${{ secrets.SENTRY_GCP_DEV_WORKLOAD_IDENTITY_POOL }}
+          workload_identity_provider: ${{ secrets.GETSENTRY_SAC_OIDC }}
           service_account: ${{ secrets.SUDO_GCP_SERVICE_ACCOUNT }}

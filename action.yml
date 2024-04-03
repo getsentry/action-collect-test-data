@@ -5,7 +5,9 @@ inputs:
     description: 'The path to the test output (such as a JUnit XML file).'
     required: true
   gcs_path:
-    description: 'The GCS bucket and optional prefix to upload the test data and metadata to.'
+    description: |
+      The GCS bucket and optional prefix to upload the test data and metadata to.
+      The format is bucket-name[/prefix]. You don't need to include the gs:// prefix.
     required: true
   gcp_project_id:
     description: 'The GCP project ID to use for authentication.'
@@ -26,18 +28,18 @@ runs:
     - name: Create directory
       id: create-directory
       shell: bash
-      run: mkdir -p test_data
+      run: mkdir -p test-data
 
     - name: Copy files
       id: copy-files
       shell: bash
-      run: cp -r ${{ inputs.path }} test_data
+      run: cp -r ${{ inputs.path }} test-data
 
     - name: Collect metadata
       id: collect-metadata
       shell: bash
       run: |
-        echo '${{ toJson(github) }}' > test_data/metadata.json
+        echo '${{ toJson(github) }}' > test-data/metadata.json
 
     - name: Authenticate
       id: auth
@@ -51,5 +53,5 @@ runs:
       id: upload
       uses: google-github-actions/upload-cloud-storage@22121cd842b0d185e042e28d969925b538c33d77 # v2.1.0
       with:
-        path: test_data
+        path: test-data
         destination: ${{ inputs.gcs_path }}

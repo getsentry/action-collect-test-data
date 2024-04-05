@@ -25,7 +25,7 @@ jobs:
           path: .artifacts/junit.xml
           gcs_path: ${{ secrets.GCS_BUCKET }}/self-test/${{ github.run_id }}
           gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
-          workload_identity_provider: ${{ secrets.GETSENTRY_SAC_OIDC }}
+          workload_identity_provider: ${{ secrets.SENTRY_GCP_DEV_WORKLOAD_IDENTITY_POOL }}
           service_account_email: ${{ secrets.SUDO_GCP_SERVICE_ACCOUNT }}
 
       - name: Check Output

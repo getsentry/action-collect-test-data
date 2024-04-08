@@ -44,7 +44,7 @@ runs:
       id: collect-metadata
       shell: bash
       run: |
-        python3 bin/generate-metadata.py > test-data/metadata.json
+        python3 -uS ${{ github.action_path }}/bin/generate-metadata.py > test-data/metadata.json
 
     - name: Authenticate
       id: auth

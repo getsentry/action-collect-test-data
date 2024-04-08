@@ -34,12 +34,17 @@ runs:
       id: copy-files
       shell: bash
       run: cp -r ${{ inputs.path }} test-data
+    
+    - name: Setup Python
+      uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+      with:
+        python-version: '3.11'
 
     - name: Collect metadata
       id: collect-metadata
       shell: bash
       run: |
-        echo '${{ toJson(github) }}' > test-data/metadata.json
+        python3 bin/generate-metadata.py > test-data/metadata.json
 
     - name: Authenticate
       id: auth

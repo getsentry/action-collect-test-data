@@ -28,7 +28,7 @@ steps:
 
 - name: Collect test data
   if: '!cancelled()' # Always run this step, unless the workflow was cancelled
-  uses: getsentry/action-collect-test-data@v0.1.1
+  uses: getsentry/action-collect-test-data@v0.2.0
   with:
     path: ./test-output.xml
     gcs_path: my-gs-bucket/prefix/test-data

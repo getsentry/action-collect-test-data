@@ -44,6 +44,9 @@ runs:
           elif [ "$DEPLOY_ENVIRON" = "prod" ]; then
             echo "projects/868781662168/locations/global/workloadIdentityPools/prod-github/providers/github-oidc-pool"
           else
+            echo >&2 "deploy_environ input must be one of 'dev' or 'prod'!"
+            exit 1
+          fi
         ) | tee -a "$GITHUB_ENV"
 
     - shell: ${{inputs.shell}}

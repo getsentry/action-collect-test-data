@@ -27,4 +27,3 @@ runs:
         upload-type: pytest
         _gcp_project: ${{ inputs._gcp_project }}
         _deploy_environ: ${{ inputs._deploy_environ }}
-      continue-on-error: true

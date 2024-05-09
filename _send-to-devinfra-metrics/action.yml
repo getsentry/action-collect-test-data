@@ -76,15 +76,14 @@ runs:
       with:
         path: test-data
         destination: |
-          ${{join([
-            env.gcs_bucket,
-            inputs.upload-type,
-            env.timestamp,
-            github.repository,
-            github.workflow,
-            github.job,
-            strategy.job-index,
-            github.repository_id,
-            github.run_id,
-            github.run_attempt
-          ],'/')}}
+          ${{ env.gcs_bucket
+          }}/${{ inputs.upload-type
+          }}/${{ env.timestamp
+          }}/${{ github.repository
+          }}/${{ github.workflow
+          }}/${{ github.job
+          }}/${{ strategy.job-index
+          }}/${{ github.repository_id
+          }}/${{ github.run_id
+          }}/${{ github.run_attempt
+          }}

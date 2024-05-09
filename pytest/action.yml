@@ -1,0 +1,30 @@
+name: "Pytest DevInfra Metrics"
+description:
+  "Collect test data and upload it to our internal test data collection service."
+
+inputs:
+  path:
+    description:
+      "Path to test data output artifact to upload to our internal test data
+      collection service"
+    required: true
+    default: pytest-report.json
+
+  _gcp_project_id:
+    description: "for internal use"
+    required: true
+  _deploy_environ:
+    description: "for internal use: `prod` or `dev`"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Collect DevInfra Metrics
+      uses: ./_send-to-devinfra-metrics
+      with:
+        path: ${{ inputs.path }}
+        upload-type: pytest
+        _gcp_project_id: ${{ inputs._gcp_project_id }}
+        _deploy_environ: ${{ inputs._deploy_environ }}
+      continue-on-error: true

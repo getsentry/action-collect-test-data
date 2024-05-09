@@ -1,0 +1,85 @@
+name: "Send to DevInfra Metrics"
+description: "Collect test data and metadata and upload them to GCS."
+inputs:
+  path:
+    description: "Filesystem path to devinfra-metrics data."
+    required: true
+  upload-type:
+    description: "Currently the only valid value is `pytest`."
+    required: true
+
+  _gcp_project_id:
+    description: "for internal use"
+    required: true
+    default: "di-prod-mtr"
+  _deploy_environ:
+    description: "for internal use: `prod` or `dev`"
+    required: true
+    default: "prod"
+
+outputs:
+  uploaded:
+    description: "The list of files uploaded to GCS."
+    value: ${{ steps.upload.outputs.uploaded }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure
+      env:
+        PROJECT: ${{inputs._gcp_project_id}}
+        DEPLOY_ENVIRON: ${{inputs._sac_deploy_environ}}
+      run: |
+        (
+          echo "timestamp=$(date -u -Ins)"
+          echo "gcs_bucket=gs://$PROJECT--metrics"
+          echo -n "workload_identity_provider="
+          if [ "$DEPLOY_ENVIRON" = "dev" ]; then
+            echo "projects/307284466893/locations/global/workloadIdentityPools/dev-github/providers/github-oidc-pool"
+          elif [ "$DEPLOY_ENVIRON" = "prod" ]; then
+            echo "projects/868781662168/locations/global/workloadIdentityPools/prod-github/providers/github-oidc-pool"
+          else
+        ) | tee -a "$GITHUB_ENV"
+
+    - shell: bash
+      run: mkdir -p test-data
+
+    - shell: bash
+      run: cp -r ${{ inputs.path }} test-data
+
+    - name: Setup Python
+      uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+      with:
+        python-version: "3.11"
+
+    - name: Collect metadata
+      shell: bash
+      run: |
+        python3 -uS ${{ github.action_path }}/bin/generate-metadata.py > test-data/metadata.json
+
+    - name: Authenticate
+      uses: google-github-actions/auth@55bd3a7c6e2ae7cf1877fd1ccb9d54c0503c457c # v2.1.2
+      with:
+        project_id: ${{ inputs._gcp_project_id }}
+        workload_identity_provider: ${{ env.workload_identity_provider }}
+        service_account:
+          collect-metrics@${{ inputs._gcp_project_id }}.iam.gserviceaccount.com
+
+    - name: Upload
+      id: upload
+      uses: google-github-actions/upload-cloud-storage@22121cd842b0d185e042e28d969925b538c33d77 # v2.1.0
+      with:
+        path: test-data
+        destination: |
+          ${{join([
+            env.gcs_bucket,
+            inputs.upload-type,
+            env.timestamp,
+            github.repository,
+            github.workflow,
+            github.job,
+            strategy.job-index,
+            github.repository_id,
+            github.run_id,
+            github.run_attempt
+          ],'/')}}

@@ -68,7 +68,6 @@ runs:
     - name: Authenticate
       uses: google-github-actions/auth@55bd3a7c6e2ae7cf1877fd1ccb9d54c0503c457c # v2.1.2
       with:
-        project_id: ${{ inputs._gcp_project }}
         workload_identity_provider: ${{ env.workload_identity_provider }}
         service_account:
           collect-metrics@${{ inputs._gcp_project }}.iam.gserviceaccount.com

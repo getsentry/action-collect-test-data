@@ -33,7 +33,7 @@ runs:
       shell: ${{inputs.shell}}
       env:
         PROJECT: ${{inputs._gcp_project}}
-        DEPLOY_ENVIRON: ${{inputs._sac_deploy_environ}}
+        DEPLOY_ENVIRON: ${{inputs._deploy_environ}}
       run: |
         (
           echo "timestamp=$(date -u -Ins)"

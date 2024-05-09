@@ -8,7 +8,7 @@ inputs:
       "Path to test data output artifact to upload to our internal test data
       collection service"
     required: true
-    default: pytest-report.json
+    default: .artifacts/pytest-report.json
 
   _gcp_project:
     description: "for internal use"

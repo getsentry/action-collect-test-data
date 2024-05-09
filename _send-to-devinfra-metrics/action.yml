@@ -16,6 +16,10 @@ inputs:
     description: "for internal use: `prod` or `dev`"
     required: true
     default: "prod"
+  _shell:
+    description: "private -- do not use"
+    required: true
+    default: bash -euxo pipefail {0}
 
 outputs:
   uploaded:
@@ -26,6 +30,7 @@ runs:
   using: "composite"
   steps:
     - name: Configure
+      shell: ${{inputs.shell}}
       env:
         PROJECT: ${{inputs._gcp_project}}
         DEPLOY_ENVIRON: ${{inputs._sac_deploy_environ}}
@@ -41,10 +46,10 @@ runs:
           else
         ) | tee -a "$GITHUB_ENV"
 
-    - shell: bash
+    - shell: ${{inputs.shell}}
       run: mkdir -p test-data
 
-    - shell: bash
+    - shell: ${{inputs.shell}}
       run: cp -r ${{ inputs.path }} test-data
 
     - name: Setup Python
@@ -53,7 +58,7 @@ runs:
         python-version: "3.11"
 
     - name: Collect metadata
-      shell: bash
+      shell: ${{inputs.shell}}
       run: |
         python3 -uS ${{ github.action_path }}/bin/generate-metadata.py > test-data/metadata.json
 

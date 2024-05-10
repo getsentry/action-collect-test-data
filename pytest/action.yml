@@ -17,11 +17,6 @@ inputs:
     description: "for testing, only: `prod` or `dev`"
     required: true
 
-  __shell:
-    description: "private -- do not use"
-    required: true
-    default: bash -euxo pipefail {0}
-
 runs:
   using: "composite"
   steps:

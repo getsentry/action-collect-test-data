@@ -39,6 +39,8 @@ runs:
         (
           echo "timestamp=$(date -u -Ins)"
           echo "gcs_bucket=gs://$PROJECT--metrics"
+          echo "sac_project=sac-$DEPLOY_ENVIRON-sa"
+
           echo -n "workload_identity_provider="
           if [ "$DEPLOY_ENVIRON" = "dev" ]; then
             echo "projects/307284466893/locations/global/workloadIdentityPools/dev-github/providers/github-oidc-pool"
@@ -71,7 +73,7 @@ runs:
       with:
         workload_identity_provider: ${{ env.workload_identity_provider }}
         service_account:
-          collect-metrics@${{ inputs._gcp_project }}.iam.gserviceaccount.com
+          gha-collect-test-data@${{ env.sac_project }}.iam.gserviceaccount.com
 
     - name: Upload
       id: upload

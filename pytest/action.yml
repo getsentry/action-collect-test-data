@@ -22,8 +22,14 @@ runs:
   steps:
     - name: Collect DevInfra Metrics
       uses: ./_send-to-devinfra-metrics
+      id: upload
       with:
         path: ${{ inputs.path }}
         upload-type: pytest
         _gcp_project: ${{ inputs._gcp_project }}
         _deploy_environ: ${{ inputs._deploy_environ }}
+
+outputs:
+  uploaded:
+    description: "The list of files uploaded to GCS."
+    value: ${{ steps.upload.outputs.uploaded }}

@@ -10,7 +10,7 @@ defaults:
   run:
     shell: bash -euxo pipefail {0}
 env:
-  PS4: \e[36m$\e[m
+  PS4: "\e[36m$\e[m "
 
 jobs:
   reglar:

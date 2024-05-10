@@ -38,7 +38,7 @@ runs:
       run: |
         (
           echo "timestamp=$(date -u -Ins)"
-          echo "gcs_bucket=gs://$PROJECT--metrics"
+          echo "gcs_bucket=$PROJECT--metrics"
           echo "sac_project=sac-$DEPLOY_ENVIRON-sa"
 
           echo -n "workload_identity_provider="

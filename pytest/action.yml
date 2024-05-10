@@ -11,11 +11,16 @@ inputs:
     default: .artifacts/pytest-report.json
 
   _gcp_project:
-    description: "for internal use"
+    description: "for testing, only"
     required: true
   _deploy_environ:
-    description: "for internal use: `prod` or `dev`"
+    description: "for testing, only: `prod` or `dev`"
     required: true
+
+  __shell:
+    description: "private -- do not use"
+    required: true
+    default: bash -euxo pipefail {0}
 
 runs:
   using: "composite"

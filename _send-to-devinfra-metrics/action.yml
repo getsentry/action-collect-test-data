@@ -9,14 +9,15 @@ inputs:
     required: true
 
   _gcp_project:
-    description: "for internal use"
+    description: "for testing, only"
     required: true
     default: "di-prod-mtr"
   _deploy_environ:
-    description: "for internal use: `prod` or `dev`"
+    description: "for testing, only: `prod` or `dev`"
     required: true
     default: "prod"
-  _shell:
+
+  __shell:
     description: "private -- do not use"
     required: true
     default: bash -euxo pipefail {0}
@@ -30,7 +31,7 @@ runs:
   using: "composite"
   steps:
     - name: Configure
-      shell: ${{inputs.shell}}
+      shell: ${{inputs.__shell}}
       env:
         PROJECT: ${{inputs._gcp_project}}
         DEPLOY_ENVIRON: ${{inputs._deploy_environ}}
@@ -49,10 +50,10 @@ runs:
           fi
         ) | tee -a "$GITHUB_ENV"
 
-    - shell: ${{inputs.shell}}
+    - shell: ${{inputs.__shell}}
       run: mkdir -p test-data
 
-    - shell: ${{inputs.shell}}
+    - shell: ${{inputs.__shell}}
       run: cp -r ${{ inputs.path }} test-data
 
     - name: Setup Python
@@ -61,7 +62,7 @@ runs:
         python-version: "3.11"
 
     - name: Collect metadata
-      shell: ${{inputs.shell}}
+      shell: ${{inputs.__shell}}
       run: |
         python3 -uS ${{ github.action_path }}/bin/generate-metadata.py > test-data/metadata.json
 

@@ -4,15 +4,19 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+  pull_request: null
+
+defaults:
+  run:
+    shell: bash -euxo pipefail {0}
+env:
+  PS4: "\e[36m$\e[m "
 
 jobs:
-  test:
+  reglar:
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: "read"
+      id-token: "write"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -20,20 +24,53 @@ jobs:
 
       - name: Use Action
         id: test-action
-        uses: ./
+        uses: ./pytest
         with:
-          path: .artifacts/junit.xml
-          gcs_path: ${{ secrets.GCS_BUCKET }}/self-test/${{ github.run_id }}
-          gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
-          workload_identity_provider: ${{ secrets.SENTRY_GCP_DEV_WORKLOAD_IDENTITY_POOL }}
-          service_account_email: ${{ secrets.SUDO_GCP_SERVICE_ACCOUNT }}
+          _deploy_environ: dev
+          _gcp_project: di-dev-mtr--buck-5
 
       - name: Check Output
+        env:
+          files: ${{ steps.test-action.outputs.uploaded }}
         run: |
           # Check that both files were uploaded (using the output from the action)
-          files="${{ steps.test-action.outputs.uploaded }}"
-          if [[ $files != *'junit.xml'* ]]; then
-            echo "junit.xml not uploaded"
+          if [[ $files != *'pytest-report.json'* ]]; then
+            echo "pytest-report.json not uploaded"
+            exit 1
+          fi
+          if [[ $files != *'metadata.json'* ]]; then
+            echo "metadata.json not uploaded"
+            exit 1
+          fi
+          echo "Files uploaded successfully"
+
+  with-matrix:
+    strategy:
+      matrix:
+        key: [2, 37]
+
+    permissions:
+      contents: "read"
+      id-token: "write"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Use Action
+        id: test-action
+        uses: ./pytest
+        with:
+          _deploy_environ: dev
+          _gcp_project: di-dev-mtr--buck-5
+
+      - name: Check Output
+        env:
+          files: ${{ steps.test-action.outputs.uploaded }}
+        run: |
+          # Check that both files were uploaded (using the output from the action)
+          if [[ $files != *'pytest-report.json'* ]]; then
+            echo "pytest-report.json not uploaded"
             exit 1
           fi
           if [[ $files != *'metadata.json'* ]]; then

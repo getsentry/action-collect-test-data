@@ -1,0 +1,94 @@
+name: "Send to DevInfra Metrics"
+description: "Collect test data and metadata and upload them to GCS."
+inputs:
+  path:
+    description: "Filesystem path to devinfra-metrics data."
+    required: true
+  upload-type:
+    description: "Currently the only valid value is `pytest`."
+    required: true
+
+  _gcp_project:
+    description: "for testing, only"
+    required: true
+    default: "di-prod-mtr"
+  _deploy_environ:
+    description: "for testing, only: `prod` or `dev`"
+    required: true
+    default: "prod"
+
+  __shell:
+    description: "private -- do not use"
+    required: true
+    default: bash -euxo pipefail {0}
+
+outputs:
+  uploaded:
+    description: "The list of files uploaded to GCS."
+    value: ${{ steps.upload.outputs.uploaded }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure
+      shell: ${{inputs.__shell}}
+      env:
+        PROJECT: ${{inputs._gcp_project}}
+        DEPLOY_ENVIRON: ${{inputs._deploy_environ}}
+      run: |
+        (
+          echo "timestamp=$(date -u -Ins)"
+          echo "gcs_bucket=$PROJECT--metrics"
+          echo "sac_project=sac-$DEPLOY_ENVIRON-sa"
+
+          echo -n "workload_identity_provider="
+          if [ "$DEPLOY_ENVIRON" = "dev" ]; then
+            echo "projects/307284466893/locations/global/workloadIdentityPools/dev-github/providers/github-oidc-pool"
+          elif [ "$DEPLOY_ENVIRON" = "prod" ]; then
+            echo "projects/868781662168/locations/global/workloadIdentityPools/prod-github/providers/github-oidc-pool"
+          else
+            echo >&2 "deploy_environ input must be one of 'dev' or 'prod'!"
+            exit 1
+          fi
+        ) | tee -a "$GITHUB_ENV"
+
+    - shell: ${{inputs.__shell}}
+      run: mkdir -p test-data
+
+    - shell: ${{inputs.__shell}}
+      run: cp -r ${{ inputs.path }} test-data
+
+    - name: Setup Python
+      uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+      with:
+        python-version: "3.11"
+
+    - name: Collect metadata
+      shell: ${{inputs.__shell}}
+      run: |
+        python3 -uS ${{ github.action_path }}/bin/generate-metadata.py > test-data/metadata.json
+
+    - name: Authenticate
+      uses: google-github-actions/auth@55bd3a7c6e2ae7cf1877fd1ccb9d54c0503c457c # v2.1.2
+      with:
+        workload_identity_provider: ${{ env.workload_identity_provider }}
+        service_account:
+          gha-collect-test-data@${{ env.sac_project }}.iam.gserviceaccount.com
+
+    - name: Upload
+      id: upload
+      uses: google-github-actions/upload-cloud-storage@22121cd842b0d185e042e28d969925b538c33d77 # v2.1.0
+      with:
+        path: test-data
+        destination: |
+          ${{ env.gcs_bucket
+          }}/${{ inputs.upload-type
+          }}/${{ env.timestamp
+          }}/${{ github.repository
+          }}/${{ github.workflow
+          }}/${{ github.job
+          }}/${{ strategy.job-index
+          }}/${{ github.repository_id
+          }}/${{ github.run_id
+          }}/${{ github.run_attempt
+          }}

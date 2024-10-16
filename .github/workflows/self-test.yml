@@ -31,6 +31,9 @@ jobs:
 
       - name: Check Output
         run: |
+          # use this step's log as the summary:
+          exec > >(tee -a "$GITHUB_STEP_SUMMARY") 2>&1
+
           # Check that both files were uploaded (using the output from the action)
           files="${{ steps.test-action.outputs.uploaded }}"
           if [[ $files != *'junit.xml'* ]]; then
@@ -42,3 +45,14 @@ jobs:
             exit 1
           fi
           echo "Files uploaded successfully"
+
+          set -x
+          metadata=test-data/metadata.json
+
+          test $(jq <"$metadata" -r .env.GITHUB_JOB_NAME) = "test"
+          test $(jq <"$metadata" -r .env.GITHUB_JOB_ID) -gt 0
+
+          : we have no matrix here, so this bit should be boring
+          test $(jq <"$metadata" -r .env.GITHUB_MATRIX) = "null"
+          test $(jq <"$metadata" -r .env.GITHUB_MATRIX_INDEX) -eq 0
+          test $(jq <"$metadata" -r .env.GITHUB_MATRIX_TOTAL) -eq 1

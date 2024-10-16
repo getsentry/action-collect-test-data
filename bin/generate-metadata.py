@@ -23,6 +23,8 @@ def relevant_env_var(var: str) -> bool:
             "GITHUB",
             "RUNNER",
             "CI",
+            "MATRIX",
+            "TEST",
         )
     )
 

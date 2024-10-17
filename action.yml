@@ -37,22 +37,37 @@ runs:
       run: |
         exec 2>&1
 
-        if ! job=$(
-          gh api repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT |
-            jq --arg runner_name "$RUNNER_NAME" \
-              '.jobs[] | select(.runner_name == $runner_name)'
-        ); then
-          tee -a "$GITHUB_STEP_SUMMARY" <<EOF
+        while true; do
+          if ! jobs=$(
+            gh api repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT
+          ); then
+            echo retrying failed command, with debug:
+            if ! jobs=$(
+              GH_DEBUG=api gh api repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT
+            ); then
+              tee -a "$GITHUB_STEP_SUMMARY" <<EOF
 
-        Error: Please update your Github Actions job definition to include the
-        actions.read permission:
+              Error: Please update your Github Actions job definition to include the
+              actions.read permission:
 
-            permissions:
-              actions: "read"
+                  permissions:
+                    actions: "read"
 
-        EOF
-          exit 1
-        fi
+              EOF
+              exit 1
+            fi
+          fi
+          if [[ "$jobs" = "null" ]]; then
+            sleep 1
+          else
+            break
+          fi
+        done
+
+        job=$(
+          jq <<<"$jobs" --arg runner_name "$RUNNER_NAME" \
+            '.jobs[] | select(.runner_name == $runner_name)'
+        )
 
         echo The missing GITHUB_ environment variables:
         tee -a "$GITHUB_ENV" <<EOF

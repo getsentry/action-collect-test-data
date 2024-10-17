@@ -11,6 +11,7 @@ on:
 jobs:
   test:
     permissions:
+      actions: "read"
       contents: "read"
       id-token: "write"
     runs-on: ubuntu-latest

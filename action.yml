@@ -25,29 +25,45 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Create directory
-      id: create-directory
-      shell: bash
-      run: mkdir -p test-data
+    - name: set more GITHUB_ vars
+      shell: bash -euo pipefail {0}
+      env:
+        GITHUB_MATRIX: ${{toJSON(matrix)}}
+        GITHUB_MATRIX_INDEX: ${{toJSON(strategy.job-index)}}
+        GITHUB_MATRIX_TOTAL: ${{toJSON(strategy.job-total)}}
 
-    - name: Copy files
-      id: copy-files
-      shell: bash
-      run: cp -r ${{ inputs.path }} test-data
+        # required for the below API call
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        job=$(
+          gh api repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs |
+            jq --arg runner_name "$RUNNER_NAME" \
+              '.jobs[] | select(.runner_name == $runner_name)'
+        )
+
+        echo The missing GITHUB_ environment variables:
+        tee -a "$GITHUB_ENV" <<EOF
+        GITHUB_JOB_ID=$(jq -r .id <<< "$job")
+        GITHUB_JOB_NAME=$(jq -r .name <<< "$job")
+        GITHUB_MATRIX=$(jq -c <<<"$GITHUB_MATRIX")
+        GITHUB_MATRIX_INDEX=$GITHUB_MATRIX_INDEX
+        GITHUB_MATRIX_TOTAL=$GITHUB_MATRIX_TOTAL
+        EOF
 
     - name: Setup Python
       uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
       with:
         python-version: "3.11"
 
-    - name: Collect metadata
-      id: collect-metadata
-      shell: bash
+    - name: Prepare
+      shell: bash -euo pipefail {0}
       run: |
+        set -x
+        mkdir -p test-data
+        cp -r ${{ inputs.path }} test-data
         python3 -uS ${{ github.action_path }}/bin/generate-metadata.py > test-data/metadata.json
 
     - name: Authenticate
-      id: auth
       uses: google-github-actions/auth@55bd3a7c6e2ae7cf1877fd1ccb9d54c0503c457c # v2.1.2
       with:
         project_id: ${{ inputs.gcp_project_id }}

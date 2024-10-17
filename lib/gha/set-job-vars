@@ -3,44 +3,31 @@ set -ueo pipefail
 exec 2>&1
 
 gha_get_jobs() {
-  gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT"
+  gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs"
 }
 
-job=null
-limit=3
-sleep=1
-while [[ "$job" = "null" ]]; do
-  if ! jobs=$(gha_get_jobs); then
-    echo retrying failed command, with debug:
-    if ! jobs=$(set -x; GH_DEBUG=api gha_get_jobs); then
-      tee -a "$GITHUB_STEP_SUMMARY" <<EOF
+
+if ! jobs=$(gha_get_jobs); then
+  echo retrying failed command, with debug:
+  if ! jobs=$(set -x; GH_DEBUG=api gha_get_jobs); then
+    tee -a "$GITHUB_STEP_SUMMARY" <<EOF
 
 Error: Please update your Github Actions job definition to include the
 actions.read permission:
 
-    permissions:
-      actions: "read"
+  permissions:
+    actions: "read"
 
 EOF
-      exit 1
-    fi
-  fi
-  echo jobs: "$jobs"
-  if ! [[ "$jobs" = "null" ]]; then
-    break
-  elif ((limit-=sleep)); then
-    sleep "$sleep"
-    echo $limit $sleep
-  else
-    echo timeout
     exit 1
   fi
-  job=$(
-    jq <<<"$jobs" --arg runner_name "$RUNNER_NAME" \
-      '.jobs[] | select(.runner_name == $runner_name)'
-  )
-  echo job: "$job"
-done
+fi
+echo jobs: "$jobs"
+job=$(
+  jq <<<"$jobs" --arg runner_name "$RUNNER_NAME" \
+    '.jobs[] | select(.runner_name == $runner_name)'
+)
+echo job: "$job"
 
 
 echo The missing GITHUB_ environment variables:

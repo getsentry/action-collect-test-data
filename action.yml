@@ -35,11 +35,24 @@ runs:
         # required for the below API call
         GH_TOKEN: ${{ github.token }}
       run: |
-        job=$(
-          gh api repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs |
+        exec 2>&1
+
+        if ! job=$(
+          gh api repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT |
             jq --arg runner_name "$RUNNER_NAME" \
               '.jobs[] | select(.runner_name == $runner_name)'
-        )
+        ); then
+          tee -a "$GITHUB_STEP_SUMMARY" <<EOF
+
+        Error: Please update your Github Actions job definition to include the
+        actions.read permission:
+
+            permissions:
+              actions: "read"
+
+        EOF
+          exit 1
+        fi
 
         echo The missing GITHUB_ environment variables:
         tee -a "$GITHUB_ENV" <<EOF

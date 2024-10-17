@@ -40,14 +40,14 @@ def generate_test_metadata():
     gr = grp.getgrgid(gid)
 
     return {
-      "cwd": os.getcwd(),
-      "host": socket.getfqdn(),
-      "uid": uid,
-      "username": pw.pw_name,
-      "home": pw.pw_dir,
-      "gid": gid,
-      "group": gr.gr_name,
-      "env": get_env(dict(os.environ)),
+        "cwd": os.getcwd(),
+        "host": socket.getfqdn(),
+        "uid": uid,
+        "username": pw.pw_name,
+        "home": pw.pw_dir,
+        "gid": gid,
+        "group": gr.gr_name,
+        "env": get_env(dict(os.environ)),
     }
 
 

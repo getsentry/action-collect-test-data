@@ -1,8 +1,8 @@
-name: 'Collect Test Data'
-description: 'Collect test data and metadata and upload them to GCS.'
+name: "Collect Test Data"
+description: "Collect test data and metadata and upload them to GCS."
 inputs:
   path:
-    description: 'The path to the test output (such as a JUnit XML file).'
+    description: "The path to the test output (such as a JUnit XML file)."
     required: true
   gcs_path:
     description: |
@@ -10,20 +10,20 @@ inputs:
       The format is bucket-name[/prefix]. You don't need to include the gs:// prefix.
     required: true
   gcp_project_id:
-    description: 'The GCP project ID to use for authentication.'
+    description: "The GCP project ID to use for authentication."
     required: true
   workload_identity_provider:
-    description: 'The workload identity provider to use for authentication.'
+    description: "The workload identity provider to use for authentication."
     required: true
   service_account_email:
-    description: 'The service account email to use for authentication.'
+    description: "The service account email to use for authentication."
     required: true
 outputs:
   uploaded:
-    description: 'The list of files uploaded to GCS.'
+    description: "The list of files uploaded to GCS."
     value: ${{ steps.upload.outputs.uploaded }}
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Create directory
       id: create-directory
@@ -34,11 +34,11 @@ runs:
       id: copy-files
       shell: bash
       run: cp -r ${{ inputs.path }} test-data
-    
+
     - name: Setup Python
       uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
       with:
-        python-version: '3.11'
+        python-version: "3.11"
 
     - name: Collect metadata
       id: collect-metadata
@@ -54,7 +54,7 @@ runs:
         workload_identity_provider: ${{ inputs.workload_identity_provider }}
         service_account: ${{ inputs.service_account_email }}
 
-    - name: Upload 
+    - name: Upload
       id: upload
       uses: google-github-actions/upload-cloud-storage@22121cd842b0d185e042e28d969925b538c33d77 # v2.1.0
       with:

@@ -11,8 +11,8 @@ on:
 jobs:
   test:
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: "read"
+      id-token: "write"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -25,7 +25,8 @@ jobs:
           path: .artifacts/junit.xml
           gcs_path: ${{ secrets.GCS_BUCKET }}/self-test/${{ github.run_id }}
           gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
-          workload_identity_provider: ${{ secrets.SENTRY_GCP_DEV_WORKLOAD_IDENTITY_POOL }}
+          workload_identity_provider:
+            ${{ secrets.SENTRY_GCP_DEV_WORKLOAD_IDENTITY_POOL }}
           service_account_email: ${{ secrets.SUDO_GCP_SERVICE_ACCOUNT }}
 
       - name: Check Output

@@ -39,6 +39,7 @@ EOF
     jq <<<"$jobs" --arg runner_name "$RUNNER_NAME" \
       '.jobs[] | select(.runner_name == $runner_name)'
   )
+  echo job: "$job"
 done
 
 

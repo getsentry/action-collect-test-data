@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 import grp
 import os
 import pwd
 import socket
+import sys
+import time
 
 Environ = dict[str, str]
 
@@ -10,29 +14,36 @@ Environ = dict[str, str]
 def relevant_env_var(var: str) -> bool:
     # prefixes and suffixes of environment vars that we may want during
     # debugging, test-result analysis, or traceback normalization
-    return var.endswith(("HOME", "PATH")) or var.startswith(
-        (
-            "USER",
-            "HOME",
-            "HOST",
-            "XDG",
-            "LOG",
-            "PWD",
-            "TMP",
-            "PYTHON",
-            "GITHUB",
-            "RUNNER",
-            "CI",
-            "MATRIX",
-            "TEST",
-        )
-    )
+    return var.endswith(("HOME", "PATH")) or var.startswith((
+        "USER",
+        "HOME",
+        "HOST",
+        "XDG",
+        "LOG",
+        "PWD",
+        "TMP",
+        "PYTHON",
+        "PYTEST",
+        "PIP",
+        "NODE",
+        "GITHUB",
+        "RUNNER",
+        "CI",
+        "MATRIX",
+        "TEST",
+    ))
 
 
 def get_env(env: Environ) -> Environ:
     """Keep the relevant parts of the environment variables."""
-    relevant_vars = sorted(var for var in env if relevant_env_var(var))
-    return {var: env[var] for var in relevant_vars}
+    result: Environ = {}
+
+    for var, val in sorted(env.items()):
+        if relevant_env_var(var):
+            result[var] = env[var]
+        else:
+            print(f"skipping irrelevant env var: {var}={val}", file=sys.stderr)
+    return result
 
 
 def generate_test_metadata():
@@ -42,6 +53,7 @@ def generate_test_metadata():
     gr = grp.getgrgid(gid)
 
     return {
+        "time_ns": time.time_ns(),
         "cwd": os.getcwd(),
         "host": socket.getfqdn(),
         "uid": uid,

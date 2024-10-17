@@ -1,0 +1,45 @@
+#!/bin/bash
+# set more GITHUB_ vars
+#
+# environment variable reference:
+#     https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables
+###
+
+set -ueo pipefail
+exec 2>&1
+
+
+gha_get_jobs() {
+  gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs"
+}
+
+
+if ! jobs=$(gha_get_jobs); then
+  echo retrying failed command, with debug:
+  if ! jobs=$(set -x; GH_DEBUG=api gha_get_jobs); then
+    tee -a "$GITHUB_STEP_SUMMARY" <<EOF
+
+Error: Please update your Github Actions job definition to include the
+actions.read permission:
+
+  permissions:
+    actions: "read"
+
+EOF
+    exit 1
+  fi
+fi
+job=$(
+  jq <<<"$jobs" --arg runner_name "$RUNNER_NAME" \
+    '.jobs[] | select(.runner_name == $runner_name)'
+)
+
+
+echo The missing GITHUB_ environment variables:
+tee -a "$GITHUB_ENV" <<EOF
+GITHUB_JOB_ID=$(jq -r .id <<< "$job")
+GITHUB_JOB_NAME=$(jq -r .name <<< "$job")
+GITHUB_MATRIX=$(jq -c <<<"$GITHUB_MATRIX")
+GITHUB_MATRIX_INDEX=$GITHUB_MATRIX_INDEX
+GITHUB_MATRIX_TOTAL=$GITHUB_MATRIX_TOTAL
+EOF

@@ -24,6 +24,7 @@ EOF
       exit 1
     fi
   fi
+  set -x
   if ! [[ "$jobs" = "null" ]]; then
     break
   elif ((limit-=sleep)); then

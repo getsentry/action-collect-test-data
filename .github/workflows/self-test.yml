@@ -48,11 +48,13 @@ jobs:
 
           set -x
           metadata=test-data/metadata.json
+          cat "$metadata"
+          jq length "$metadata"
 
-          test $(jq <"$metadata" -r .env.GITHUB_JOB_NAME) = "test"
-          test $(jq <"$metadata" -r .env.GITHUB_JOB_ID) -gt 0
+          test "$(jq <"$metadata" -r .env.GITHUB_JOB_NAME)" = "test"
+          test "$(jq <"$metadata" -r .env.GITHUB_JOB_ID)" -gt 0
 
           : we have no matrix here, so this bit should be boring
-          test $(jq <"$metadata" -r .env.GITHUB_MATRIX) = "null"
-          test $(jq <"$metadata" -r .env.GITHUB_MATRIX_INDEX) -eq 0
-          test $(jq <"$metadata" -r .env.GITHUB_MATRIX_TOTAL) -eq 1
+          test "$(jq <"$metadata" -r .env.GITHUB_MATRIX)" = "null"
+          test "$(jq <"$metadata" -r .env.GITHUB_MATRIX_INDEX)" -eq 0
+          test "$(jq <"$metadata" -r .env.GITHUB_MATRIX_TOTAL)" -eq 1

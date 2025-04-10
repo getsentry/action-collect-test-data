@@ -14,6 +14,7 @@ Environ: TypeAlias = dict[str, str]
 ExitCode: TypeAlias = None | int | str
 
 class NoJSONError(Exception): pass
+DEBUG = 1
 
 
 def sh_json(cmd: tuple[str, ...], env: Environ) -> Any:
@@ -22,7 +23,8 @@ def sh_json(cmd: tuple[str, ...], env: Environ) -> Any:
     import subprocess
     import sys
 
-    print("+", shlex.join(cmd), file=sys.stderr)
+    if DEBUG > 0:
+        print("+", shlex.join(cmd), file=sys.stderr)
     result = subprocess.run(cmd, stdout=subprocess.PIPE, env=env)
     if result.returncode != 0:
       raise NoJSONError
@@ -97,6 +99,9 @@ GITHUB_MATRIX_TOTAL={env["GITHUB_MATRIX_TOTAL"]}
 def main() -> ExitCode:
     from os import environ
 
+    if "DEBUG" in environ:
+        global DEBUG
+        DEBUG = int(environ["DEBUG"])
     return set_job_vars(env=dict(environ))
 
 

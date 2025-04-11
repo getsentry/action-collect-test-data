@@ -1,3 +1,5 @@
 black>=25.1.0
 pyright>=1.1.399
 pytest>=8.3.5
+pytest-coverage>=0.0
+covdefaults>=2.3.0

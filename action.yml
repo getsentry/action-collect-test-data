@@ -34,7 +34,7 @@ runs:
 
         # required for the below API call
         GH_TOKEN: ${{ github.token }}
-      run: ${{ github.action_path }}/lib/gha/set-job-vars
+      run: ${{ github.action_path }}/bin/set-job-vars
 
     - name: Setup Python
       uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0

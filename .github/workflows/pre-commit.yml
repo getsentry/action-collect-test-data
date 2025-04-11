@@ -1,0 +1,48 @@
+name: pre-commit
+
+on:
+  pull_request:
+  push:
+    branches: [main, release/**, test-me-*]
+
+env:
+  PIP_REQUIREMENTS: requirements-dev.txt
+
+defaults:
+  run:
+    # the default default is:
+    #      bash --noprofile --norc -eo pipefail {0}
+    shell: bash --noprofile --norc -eo pipefail -ux {0}
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          cache: "pip"
+          cache-dependency-path: ${{env.PIP_REQUIREMENTS}}
+      - run: pip install -r "$PIP_REQUIREMENTS"
+
+      - name: set .venv
+        run: |
+          ln -vsf "$(python -c 'import sys; print(sys.prefix)')" .venv
+
+      - name: "pre-commit: find fixes"
+        uses: pre-commit/action@v3.0.1
+        id: pre-commit-fixes
+        continue-on-error: true
+
+      - name: "pre-commit: check stability"
+        id: pre-commit-check
+        if: steps.pre-commit-fixes.outcome == 'failure'
+        uses: pre-commit/action@v3.0.1
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        if: steps.pre-commit-check.outcome == 'success'
+        with:
+          commit_message: "formatting, from `pre-commit run --all-files`"

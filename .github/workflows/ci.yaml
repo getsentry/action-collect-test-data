@@ -1,0 +1,26 @@
+on:
+  pull_request:
+  push:
+    branches: [main, release/**, test-me-*]
+
+env:
+  PIP_REQUIREMENTS: requirements-dev.txt
+
+defaults:
+  run:
+    # the default default is:
+    #      bash --noprofile --norc -eo pipefail {0}
+    shell: bash --noprofile --norc -eo pipefail -ux {0}
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          cache: "pip"
+          cache-dependency-path: ${{env.PIP_REQUIREMENTS}}
+
+      - run: pip install -r "$PIP_REQUIREMENTS"
+      - run: pytest --cov

@@ -1,0 +1,139 @@
+[project]
+name = "action-collect-test-data"
+version = "0"
+requires-python = "~=3.12"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+    "pytest-coverage>=0.0",
+    "covdefaults>=2.3.0",
+]
+
+[tool.black]
+line-length = 79
+target-version = ['py312']
+skip-magic-trailing-comma = true
+preview = true
+unstable = true
+enable-unstable-feature = [
+  'hug_parens_with_braces_and_square_brackets'
+]
+
+[tool.isort]
+profile = "black"
+use_parentheses = true
+force_single_line = true
+multi_line_output = 3
+include_trailing_comma = true
+sections = ['FUTURE', 'STDLIB', 'THIRDPARTY', 'FIRSTPARTY', 'LOCALFOLDER']
+lines_between_sections = 1
+add_imports=[
+  "from __future__ import annotations",
+]
+
+[tool.coverage.run]
+plugins = ["covdefaults"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 100
+skip_covered = false
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+markers = []
+xfail_strict = true
+addopts = "-v --durations=0 --durations-min=10 --doctest-modules --last-failed"
+testpaths = ["."]
+norecursedirs = [
+    # don't look at hidden files
+    "**/.*",
+
+    # temp files
+    "**/Download",
+
+    # runtime files, not version-controlled
+    "**/log",
+    "**/data",
+    "**/libexec",
+    "**/__pycache__",
+    "**/Library",
+    "**/*venv",
+
+    # home for files with separate version control
+    "**/repo",
+    "**/vendor",
+
+    # dirty hax
+    "**/tmp*",
+    "**/*tmp",
+    "**/*bak",
+    "**/scratch",
+]
+python_files = ["*.py"]
+python_classes = ["Test", "Describe"]
+python_functions = ["test", "it"]
+
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+include = ["."]
+exclude = [
+   # don't look at hidden files
+    "**/.*",
+
+    # temp files
+    "**/Download",
+
+    # runtime files, not version-controlled
+    "**/log",
+    "**/libexec",
+    "**/__pycache__",
+    "**/Library",
+    "**/*venv",
+
+    # home for files with separate version control
+    ###"**/repo",
+    "**/vendor",
+
+    # dirty hax
+    "**/tmp*",
+    "**/*tmp",
+    "**/*bak",
+    "**/scratch",
+]
+follow_imports_for_stubs = true
+
+pythonPlatform = "Linux"
+
+pythonVersion = "3.12"
+extraPaths = [
+  "venv/lib/python3.12/site-packages/"
+]
+
+typeCheckingMode = "strict"
+
+# don't flag arguments as long as its type is known
+reportMissingParameterType = "none"
+reportUnknownParameterType = "error"
+
+# turn on all the checks not already enabled by "strict":
+reportCallInDefaultInitializer = "error"
+reportImplicitStringConcatenation = "error"
+reportMissingSuperCall = "error"
+reportPropertyTypeMismatch = "error"
+reportUninitializedInstanceVariable = "error"
+reportUnnecessaryTypeIgnoreComment = "error"
+reportUnusedCallResult = "none"  # too noisy
+
+# maintainer has an strong anti-idomatic stance on what "constant" means
+# https://github.com/microsoft/pyright/issues/5265
+reportConstantRedefinition = false
+
+### # there's no way to mark simple modules as "py.typed"
+### # https://peps.python.org/pep-0561/#packaging-type-information
+### reportMissingTypestubs =  false
+
+

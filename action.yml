@@ -47,7 +47,7 @@ runs:
         set -x
         mkdir -p test-data
         cp -r ${{ inputs.path }} test-data
-        python3 -uS ${{ github.action_path }}/bin/generate-metadata.py > test-data/metadata.json
+        python3 -uS ${{ github.action_path }}/bin/generate-metadata > test-data/metadata.json
 
     - name: Authenticate
       uses: google-github-actions/auth@55bd3a7c6e2ae7cf1877fd1ccb9d54c0503c457c # v2.1.2

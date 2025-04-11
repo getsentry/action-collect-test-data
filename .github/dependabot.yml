@@ -5,5 +5,3 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    # Optional: Pin actions to patch versions
-    pin-versions: true

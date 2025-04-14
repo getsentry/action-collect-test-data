@@ -37,7 +37,7 @@ runs:
       run: ${{ github.action_path }}/bin/set-job-vars
 
     - name: Setup Python
-      uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+      uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
       with:
         python-version: "3.11"
 
@@ -50,7 +50,7 @@ runs:
         python3 -uS ${{ github.action_path }}/bin/generate-metadata > test-data/metadata.json
 
     - name: Authenticate
-      uses: google-github-actions/auth@55bd3a7c6e2ae7cf1877fd1ccb9d54c0503c457c # v2.1.2
+      uses: google-github-actions/auth@71f986410dfbc7added4569d411d040a91dc6935 # v2.1.8
       with:
         project_id: ${{ inputs.gcp_project_id }}
         workload_identity_provider: ${{ inputs.workload_identity_provider }}
@@ -58,7 +58,7 @@ runs:
 
     - name: Upload
       id: upload
-      uses: google-github-actions/upload-cloud-storage@22121cd842b0d185e042e28d969925b538c33d77 # v2.1.0
+      uses: google-github-actions/upload-cloud-storage@7c6e11cb7291594c5dfe0bc1dd9cd905e31e600c # v2.2.2
       with:
         path: test-data
         destination: ${{ inputs.gcs_path }}

@@ -61,7 +61,7 @@ def gh_app_get_jobs(repo: str, run: str, attempt: str) -> Any:
     import json
 
     try:
-        return json.loads(
+        result = json.loads(
             sh_stdout((
                 "gh",
                 "api",
@@ -78,6 +78,10 @@ def gh_app_get_jobs(repo: str, run: str, attempt: str) -> Any:
         )
     except json.JSONDecodeError:
         return None
+
+    if DEBUG:
+        info("JOBS:", json.dumps(result, indent=2))
+    return result
 
 
 def gha_get_jobs():

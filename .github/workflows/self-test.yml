@@ -7,7 +7,7 @@ on:
 
 jobs:
   self-test:
-    name: self-test ${{matrix.fish-color}} ${{matrix.fish-number}}
+    name: self-test (${{matrix.fish-number}} ${{matrix.fish-color}})
     permissions:
       actions: "read"
       contents: "read"
@@ -81,11 +81,11 @@ jobs:
           cat "$metadata"
           jq length "$metadata"
 
-          test "$(jq <"$metadata" -r .env.GITHUB_JOB_NAME)" = "self-test $COLOR $NUMBER"
+          test "$(jq <"$metadata" -r .env.GITHUB_JOB_NAME)" = "self-test ($NUMBER $COLOR)"
           test "$(jq <"$metadata" -r .env.GITHUB_JOB_ID)" -gt 0
           test "$(jq <"$metadata" -r .env.GITHUB_MATRIX)" = '{
-            "fish-number": $NUMBER,
-            "fish-color": "$COLOR"
+            "fish-number": '"$NUMBER"',
+            "fish-color": "'"$COLOR"'"
           }'
           test "$(jq <"$metadata" -r .env.GITHUB_MATRIX_TOTAL)" -eq 4
           test "$(jq <"$metadata" -r .env.GITHUB_MATRIX_INDEX)" -ge 0

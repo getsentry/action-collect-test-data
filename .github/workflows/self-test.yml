@@ -16,6 +16,25 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
+      - name: "DEBUG: show environ"
+        if: runner.debug
+        env:
+          GITHUB_CONTEXT_GITHUB: ${{toJSON(github)}}
+          GITHUB_CONTEXT_ENV: ${{toJSON(env)}}
+          GITHUB_CONTEXT_VARS: ${{toJSON(vars)}}
+          GITHUB_CONTEXT_JOB: ${{toJSON(job)}}
+          GITHUB_CONTEXT_JOBS: ${{toJSON(jobs)}}
+          GITHUB_CONTEXT_STEPS: ${{toJSON(steps)}}
+          GITHUB_CONTEXT_RUNNER: ${{toJSON(runner)}}
+          GITHUB_CONTEXT_SECRETS: ${{toJSON(secrets)}}
+          GITHUB_CONTEXT_STRATEGY: ${{toJSON(strategy)}}
+          GITHUB_CONTEXT_MATRIX: ${{toJSON(matrix)}}
+          GITHUB_CONTEXT_NEEDS: ${{toJSON(needs)}}
+          GITHUB_CONTEXT_INPUTS: ${{toJSON(inputs)}}
+        run: |
+          sort -z /proc/self/environ |
+            tr '\n\0' ';\n'
+
       - name: Use Action
         id: test-action
         uses: ./

@@ -22,7 +22,8 @@ Lines: TypeAlias = Iterator[str]
 
 # module defaults, to be overridden in test
 ENV: Environ = environ.copy()
-ENV.setdefault("DEBUG", "1")
+if not ENV.get("DEBUG"):  # treat empty-string the same as unset
+    ENV["DEBUG"] = "1"
 DEBUG = int(ENV["DEBUG"])
 
 del environ  # hygiene -- keep our environment clean!

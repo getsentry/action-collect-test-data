@@ -7,6 +7,7 @@ on:
 
 jobs:
   self-test:
+    name: self-test ${{matrix.fish-color}} ${{matrix.fish-number}}
     permissions:
       actions: "read"
       contents: "read"
@@ -20,11 +21,9 @@ jobs:
         fish-color:
           - red
           - blue
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: "DEBUG: show environ"
+    steps:
+      - name: "DEBUG: show context"
         if: runner.debug
         env:
           GITHUB_CONTEXT_GITHUB: ${{toJSON(github)}}
@@ -41,7 +40,10 @@ jobs:
           GITHUB_CONTEXT_INPUTS: ${{toJSON(inputs)}}
         run: |
           sort -z /proc/self/environ |
-            tr '\n\0' ';\n'
+            tr '\0' '\n'
+
+      - name: Checkout Code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Use Action
         id: test-action
@@ -55,6 +57,9 @@ jobs:
           service_account_email: ${{ secrets.SUDO_GCP_SERVICE_ACCOUNT }}
 
       - name: Check Output
+        env:
+          COLOR: ${{matrix.fish-color}}
+          NUMBER: ${{matrix.fish-number}}
         run: |
           # use this step's log as the summary:
           exec > >(tee -a "$GITHUB_STEP_SUMMARY") 2>&1
@@ -76,10 +81,12 @@ jobs:
           cat "$metadata"
           jq length "$metadata"
 
-          test "$(jq <"$metadata" -r .env.GITHUB_JOB_NAME)" = "self-test"
+          test "$(jq <"$metadata" -r .env.GITHUB_JOB_NAME)" = "self-test $COLOR $NUMBER"
           test "$(jq <"$metadata" -r .env.GITHUB_JOB_ID)" -gt 0
-
-          : we have no matrix here, so this bit should be boring
-          test "$(jq <"$metadata" -r .env.GITHUB_MATRIX)" = "null"
-          test "$(jq <"$metadata" -r .env.GITHUB_MATRIX_INDEX)" -eq 0
-          test "$(jq <"$metadata" -r .env.GITHUB_MATRIX_TOTAL)" -eq 1
+          test "$(jq <"$metadata" -r .env.GITHUB_MATRIX)" = '{
+            "fish-number": $NUMBER,
+            "fish-color": "$COLOR"
+          }'
+          test "$(jq <"$metadata" -r .env.GITHUB_MATRIX_TOTAL)" -eq 4
+          test "$(jq <"$metadata" -r .env.GITHUB_MATRIX_INDEX)" -ge 0
+          test "$(jq <"$metadata" -r .env.GITHUB_MATRIX_INDEX)" -lt 4

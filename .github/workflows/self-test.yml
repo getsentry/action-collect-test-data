@@ -23,7 +23,7 @@ jobs:
           GITHUB_CONTEXT_ENV: ${{toJSON(env)}}
           GITHUB_CONTEXT_VARS: ${{toJSON(vars)}}
           GITHUB_CONTEXT_JOB: ${{toJSON(job)}}
-          GITHUB_CONTEXT_JOBS: ${{toJSON(jobs)}}
+          #GITHUB_CONTEXT_JOBS: ${{toJSON(jobs)}}
           GITHUB_CONTEXT_STEPS: ${{toJSON(steps)}}
           GITHUB_CONTEXT_RUNNER: ${{toJSON(runner)}}
           GITHUB_CONTEXT_SECRETS: ${{toJSON(secrets)}}

@@ -38,6 +38,32 @@ class DescribeGhAppGetJobs:
             result = M.gh_app_get_jobs("owner/repo", "run_id", "attempt_id")
         assert result is None
 
+    def it_shows_jobs_on_debug(self, capfd: pytest.CaptureFixture[str]):
+        with (
+            mock.patch.object(M, "DEBUG", 1),
+            mock.patch.object(
+                M, "sh_stdout", return_value='"one fish, two fish"'
+            ),
+        ):
+            M.gh_app_get_jobs("owner/repo", "run_id", "attempt_id")
+
+        captured = capfd.readouterr()
+        assert 'JOBS: "one fish, two fish"\n' == captured.err
+        assert "" == captured.out
+
+    def it_dont_show_jobs_wo_debug(self, capfd: pytest.CaptureFixture[str]):
+        with (
+            mock.patch.object(M, "DEBUG", 0),
+            mock.patch.object(
+                M, "sh_stdout", return_value='"red fish, blue fish"'
+            ),
+        ):
+            M.gh_app_get_jobs("owner/repo", "run_id", "attempt_id")
+
+        captured = capfd.readouterr()
+        assert "" == captured.err
+        assert "" == captured.out
+
 
 class DescribeGhaGetJobs:
     def it_calls_gh_app_get_jobs_with_env_vars(self):

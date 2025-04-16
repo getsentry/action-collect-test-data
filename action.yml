@@ -34,12 +34,12 @@ runs:
 
         # required for the below API call
         GH_TOKEN: ${{ github.token }}
-      run: ${{ github.action_path }}/bin/set-job-vars
 
-    - name: Setup Python
-      uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
-      with:
-        python-version: "3.11"
+        DEBUG: ${{ runner.debug }}
+      run: |
+        set -ex
+        echo DEBUG: $DEBUG
+        ${{ github.action_path }}/bin/set-job-vars
 
     - name: Prepare
       shell: bash -euo pipefail {0}
@@ -47,7 +47,8 @@ runs:
         set -x
         mkdir -p test-data
         cp -r ${{ inputs.path }} test-data
-        python3 -uS ${{ github.action_path }}/bin/generate-metadata > test-data/metadata.json
+        python3 -uS ${{ github.action_path }}/bin/generate-metadata |
+          tee test-data/metadata.json
 
     - name: Authenticate
       uses: google-github-actions/auth@71f986410dfbc7added4569d411d040a91dc6935 # v2.1.8
@@ -62,3 +63,4 @@ runs:
       with:
         path: test-data
         destination: ${{ inputs.gcs_path }}
+        process_gcloudignore: false # just to supress the silly warning

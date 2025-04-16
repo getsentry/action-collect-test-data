@@ -63,3 +63,4 @@ runs:
       with:
         path: test-data
         destination: ${{ inputs.gcs_path }}
+        process_gcloudignore: false # just to supress the silly warning

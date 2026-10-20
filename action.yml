@@ -23,7 +23,7 @@ inputs:
       The Python version to install with actions/setup-python. Set to an empty
       string to use the python3 already on PATH (3.9+).
     required: false
-    default: "3.11"
+    default: "3.13"
 outputs:
   uploaded:
     description: "The list of files uploaded to GCS."

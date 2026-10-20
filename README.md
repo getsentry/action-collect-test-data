@@ -15,6 +15,10 @@ environment and uploads it to a Google Cloud Storage bucket.
   Identity Provider that will be used to authenticate the action to GCP.
 - `service_account_email` (required): The email address of the service account
   that will be used to authenticate the action to GCP.
+- `python-version` (optional, default `3.13`): The Python version to install
+  with `actions/setup-python`. Set it to `""` to skip that step and use the
+  `python3` already on `PATH` (3.9+). This avoids downloading Python on runners
+  whose tool cache doesn't include the default version.
 
 ### Outputs
 

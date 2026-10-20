@@ -18,6 +18,12 @@ inputs:
   service_account_email:
     description: "The service account email to use for authentication."
     required: true
+  python-version:
+    description: |
+      The Python version to install with actions/setup-python. Set to an empty
+      string to use the python3 already on PATH (3.9+).
+    required: false
+    default: "3.11"
 outputs:
   uploaded:
     description: "The list of files uploaded to GCS."
@@ -37,9 +43,10 @@ runs:
       run: ${{ github.action_path }}/bin/set-job-vars
 
     - name: Setup Python
+      if: inputs.python-version != ''
       uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
       with:
-        python-version: "3.11"
+        python-version: ${{ inputs.python-version }}
 
     - name: Prepare
       shell: bash -euo pipefail {0}
